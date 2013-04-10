@@ -39,16 +39,36 @@ To select for the new OpenStack-based "Rackspace Open Cloud" API (aka 'v2'), you
 
 This plugin also has support for authenticating against an alternate API Auth URL. This is useful if you are a Rackspace Cloud UK user, here is an example of configuring your <tt>knife.rb</tt>:
 
-    knife[:rackspace_api_auth_url] = "lon.auth.api.rackspacecloud.com"
+    knife[:rackspace_api_auth_url] = "https://lon.identity.api.rackspacecloud.com/v2.0"
 
-This plugin also has support for specifying which region to create servers into:
+This plugin also supports different regions by adding the following to your `knife.rb`:
 
-    knife[:rackspace_endpoint] = "https://dfw.servers.api.rackspacecloud.com/v2"
+    knife[:rackspace_region] = "ord"
 
-valid options include:
-      DFW_ENDPOINT = 'https://dfw.servers.api.rackspacecloud.com/v2'
-      ORD_ENDPOINT = 'https://ord.servers.api.rackspacecloud.com/v2'
-      LON_ENDPOINT = 'https://lon.servers.api.rackspacecloud.com/v2'
+Valid regions include the following:
+
+<table>
+	<tr>
+		<th>Cloud></th>
+		<th>Location</th>
+		<th>Value</th>
+	</tr>
+	<tr>
+		<td>UK Cloud</td>
+		<td>London</td>
+		<td><tt>lon</tt></td>
+	</tr>
+	<tr>
+		<td>US Cloud</td>
+		<td>Chicago</td>
+		<td><tt>ord</tt></td>
+	</tr>
+	<tr>
+		<td>US Cloud</td>
+		<td>Dallas</td>
+		<td><tt>dfw</tt></td>
+	</tr>
+</table>
 
 Additionally the following options may be set in your `knife.rb`:
 
