@@ -17,6 +17,7 @@
 #
 
 require 'chef/knife'
+require 'fog'
 
 class Chef
   class Knife
@@ -56,13 +57,18 @@ class Chef
           option :rackspace_api_auth_url,
             :long => "--rackspace-api-auth-url URL",
             :description => "Your rackspace API auth url",
-            :default => "auth.api.rackspacecloud.com",
+            :default => ::Fog::Rackspace::US_AUTH_ENDPOINT,
             :proc => Proc.new { |url| Chef::Config[:knife][:rackspace_api_auth_url] = url }
+
+          option :rackspace_region,
+            :long => "--rackspace-region REGION",
+            :description => "Your rackspace region",
+            :default => "dfw",
+            :proc => Proc.new { |region| Chef::Config[:knife][:rackspace_region] = region }
 
           option :rackspace_endpoint,
             :long => "--rackspace-endpoint URL",
-            :description => "Your rackspace API endpoint",
-            :default => "https://dfw.servers.api.rackspacecloud.com/v2",
+            :description => "Your custom API endpoint",
             :proc => Proc.new { |url| Chef::Config[:knife][:rackspace_endpoint] = url }
         end
       end
@@ -77,6 +83,9 @@ class Chef
         Chef::Log.debug("rackspace_auth_url #{config[:rackspace_api_auth_url]}")
         Chef::Log.debug("rackspace_endpoint #{Chef::Config[:knife][:rackspace_endpoint]}")
         Chef::Log.debug("rackspace_endpoint #{config[:rackspace_endpoint]}")
+        Chef::Log.debug("rackspace_region #{Chef::Config[:knife][:rackspace_region]}")
+        Chef::Log.debug("rackspace_region #{config[:rackspace_region]}")
+        
         if (Chef::Config[:knife][:rackspace_version] == 'v2') || (config[:rackspace_version] == 'v2')
           @connection ||= begin
             connection = Fog::Compute.new(
@@ -85,10 +94,15 @@ class Chef
               :rackspace_api_key => Chef::Config[:knife][:rackspace_api_key],
               :rackspace_username => (Chef::Config[:knife][:rackspace_username] || Chef::Config[:knife][:rackspace_api_username]),
               :rackspace_auth_url => Chef::Config[:knife][:rackspace_api_auth_url] || config[:rackspace_api_auth_url],
-              :rackspace_endpoint => Chef::Config[:knife][:rackspace_endpoint] || config[:rackspace_endpoint]
+              :rackspace_compute_url => Chef::Config[:knife][:rackspace_endpoint] || config[:rackspace_endpoint],
+              :rackspace_region => Chef::Config[:knife][:rackspace_region] || config[:rackspace_region]
             )
           end
         else
+          if Chef::Config[:knife][:rackspace_region] || config[:rackspace_region]
+            Chef::Log.warn("Ignoring the rackspace_region parameter as it is only supported for Next Gen Cloud Servers (v2)")
+          end
+          
           @connection ||= begin
             connection = Fog::Compute.new(
               :provider => 'Rackspace',
